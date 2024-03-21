@@ -74,11 +74,11 @@ def main():
     print("Generated Graph (Adjacency Matrix):")
     
     adjacency_matrix=[[0, 1, 0, 1, 0, 1],
-        [1, 0, 1, 1, 1, 1],
+        [1, 0, 1, 0, 1, 0],
         [0, 1, 0, 1, 1, 1],
-        [1, 1, 1, 0, 1, 0],
+        [1, 0, 1, 0, 1, 0],
         [0, 1, 1, 1, 0, 1],
-        [1, 1, 1, 0, 1, 0]]
+        [1, 0, 1, 0, 1, 0]]
     adjacency_matrix=numpy.matrix(adjacency_matrix)
     graph=nx.from_numpy_array(adjacency_matrix)
     
