@@ -125,6 +125,7 @@ def main():
 				maxtension=t
 		print(particals)
 		print("total tension: ",t)
+		print("max tension: ",maxtension)
 		print('======================================')
 		
 		
