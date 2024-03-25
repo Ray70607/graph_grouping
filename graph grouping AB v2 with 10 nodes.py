@@ -6,7 +6,7 @@ import numpy
 from collections import deque
 import matplotlib.pyplot as plt
 nodenum=10
-edgenum=15
+edgenum=12
 
 import numpy as np
 from collections import deque
@@ -16,10 +16,53 @@ def visualize_adjacency_matrix(adj_matrix):
 	
 	# Draw the graph
 	pos = nx.spring_layout(G)  # positions for all nodes
-	nx.draw(G, pos, with_labels=True, cmap=plt.cm.Blues, node_color='skyblue', node_size=500)
+	nx.draw(G, pos, with_labels=True, cmap=plt.cm.Blues, node_color='skyblue', node_size=50)
 	
 	# Display the graph
 	plt.show()
+
+def visualize_graph_with_labels_and_colors(adjacency_matrix, color_array):
+	# Create a graph from the adjacency matrix
+	G = nx.Graph()
+	for i in range(len(adjacency_matrix)):
+		for j in range(i+1, len(adjacency_matrix)):
+			if adjacency_matrix[i][j] != 0: # Assuming 0 means no edge
+				# Add an edge with a label, rounded to 2 decimal places
+				G.add_edge(i, j, weight=round(adjacency_matrix[i][j], 2))
+			
+	# Determine node colors based on the color_array
+	node_colors = ['pink' if color_array[i] == 1 else 'blue' for i in range(len(color_array))]
+	
+	# Position nodes using the spring layout
+	pos = nx.spring_layout(G)
+	# Draw the nodes with determined colors
+	nx.draw(G, pos, with_labels=True, node_color=node_colors, edge_color='gray')
+	# Draw edge labels
+	edge_labels = nx.get_edge_attributes(G, 'weight')
+	nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels)
+	
+	plt.show()
+	
+# Example usage
+#visualize_graph_with_labels_and_colors([[0, 1.123456, 0], [1.123456, 0, 2.654321], [0, 2.654321, 0]], [1, 0, 1])
+def visualize_graph(graph):
+	G = nx.Graph()
+	
+	# Add edges to the graph
+	for i in range(len(graph)):
+		for j in range(len(graph[i])):
+			if graph[i][j] != 0:
+				label = "{:.2f}".format(graph[i][j])  # Round to 2 decimal places
+				G.add_edge(i, j, weight=label)
+				
+	# Draw the graph
+	pos = nx.spring_layout(G)  # Positions nodes using Fruchterman-Reingold force-directed algorithm
+	labels = nx.get_edge_attributes(G, 'weight')
+	nx.draw(G, pos, with_labels=True, node_color='skyblue', node_size=150, font_size=10)
+	nx.draw_networkx_edge_labels(G, pos, edge_labels=labels)
+	
+	plt.show()
+	
 
 def is_fully_interconnected(adj_matrix):
 	n = len(adj_matrix)
@@ -142,8 +185,12 @@ def main():
 	print()
 	for node, distances_from_node in firstStep.items():
 		print(f"From node FS {node}: {distances_from_node}")
+	lasttension=[]
+	for i in range(nodenum):
+		lasttension.append([])
+		for j in range(nodenum):
+			lasttension[i].append(0)
 	while 1:
-		
 		fcur=calcf(adjacency_matrix,distances,firstStep,particals)
 		for node, distances_from_node in fcur.items():
 			print(f"From node Force {node}: {distances_from_node}")
@@ -163,6 +210,8 @@ def main():
 			fend=inforce[end_node]-2*fcur[end_node][start_node]
 			t=fstart+fend
 			print(f"Edge: {start_node} -> {end_node} tension: {t}")
+			lasttension[start_node][end_node]=t
+			lasttension[end_node][start_node]=t
 			if(t>maxtension):
 				maxtension=t
 				maxtindex=(start_node, end_node)
@@ -173,34 +222,10 @@ def main():
 		print('======================================')
 		print(particals)
 	print('======================================')
-	visualize_adjacency_matrix(adjacency_matrix)
-	'''
-	fcur=calcf(adjacency_matrix,distances,firstStep,particals)
-	for node, distances_from_node in fcur.items():
-		print(f"From node Force {node}: {distances_from_node}")
-	print()
-	inforce=[]
-	for i in range(nodenum):
-		inforce.append(0)
-		for j in range(nodenum):
-			inforce[i]+=fcur[i][j];
-	print(inforce)
-	edgelist=graph.edges()
-	maxtension=-10000
-	maxtindex=0
-	for edge in edgelist:
-		start_node, end_node =edge
-		fstart=inforce[start_node]-2*fcur[start_node][end_node]
-		fend=inforce[end_node]-2*fcur[end_node][start_node]
-		t=fstart+fend
-		print(f"Edge: {start_node} -> {end_node} tension: {t}")
-		if(t>maxtension):
-			maxtension=t
-			maxtindex=(start_node, end_node)
-	if maxtension>=2:
-		swap(particals[maxtindex[0]],particals[maxtindex[1]])
-	'''
-		
+	print(particals)
+	print(lasttension)
+	visualize_graph_with_labels_and_colors(lasttension,particals)
+			
 		
 		
 		
