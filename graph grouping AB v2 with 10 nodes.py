@@ -1,9 +1,58 @@
 #!/usr/bin/env python3
-import itertools
+
 import random
 import networkx as nx
 import numpy
-nodenum=6
+from collections import deque
+import matplotlib.pyplot as plt
+nodenum=10
+edgenum=15
+
+import numpy as np
+from collections import deque
+def visualize_adjacency_matrix(adj_matrix):
+	# Create a graph from the adjacency matrix
+	G = nx.from_numpy_array(adj_matrix)
+	
+	# Draw the graph
+	pos = nx.spring_layout(G)  # positions for all nodes
+	nx.draw(G, pos, with_labels=True, cmap=plt.cm.Blues, node_color='skyblue', node_size=500)
+	
+	# Display the graph
+	plt.show()
+
+def is_fully_interconnected(adj_matrix):
+	n = len(adj_matrix)
+	visited = np.zeros(n, dtype=bool)
+	
+	# Function to perform BFS
+	def bfs(start):
+		visited[start] = True
+		queue = deque([start])
+		while queue:
+			node = queue.popleft()
+			for neighbor in np.where(adj_matrix[node] == 1)[0]:
+				if not visited[neighbor]:
+					visited[neighbor] = True
+					queue.append(neighbor)
+					
+	# Start BFS from each node
+	for i in range(n):
+		visited.fill(False)
+		bfs(i)
+		if not all(visited):
+			return False
+		
+	return True
+
+# Test the function
+
+
+#print(is_fully_interconnected(adj_matrix))
+
+
+
+
 def generate_random_graph(nodes, edges):
 	if edges > nodes * (nodes - 1) / 2:
 		raise ValueError("Too many edges for the given number of nodes")
@@ -68,24 +117,22 @@ def calcf(adjacency_matrix,distances,firstStep,particals):
 	
 
 def main():
-	#particals=[0,0,0,1,1,1]
+	particals=[0,0,0,0,0,1,1,1,1,1]
 	nodes = nodenum
-	edges = 12
+	edges = edgenum
 	graph = generate_random_graph(nodes, edges)
 	adjacency_matrix = nx.to_numpy_array(graph)
-	print("Generated Graph (Adjacency Matrix):")
-	'''
-	adjacency_matrix=[
-		[0, 1, 0, 0, 0, 1],
-		[1, 0, 1, 1, 1, 1],
-		[0, 1, 0, 1, 1, 1],
-		[0, 1, 1, 0, 1, 0],
-		[0, 1, 1, 1, 0, 1],
-		[1, 1, 1, 0, 1, 0]
-	]
+	while(not is_fully_interconnected(adjacency_matrix)):
+		graph = generate_random_graph(nodes, edges)
+		adjacency_matrix = nx.to_numpy_array(graph)
+		print("graph generation failure!")
+	
+	print("\ngraph generation success!\nGenerated Graph (Adjacency Matrix):")
+	
+
 	adjacency_matrix=numpy.matrix(adjacency_matrix)
 	graph=nx.from_numpy_array(adjacency_matrix)
-	'''
+	
 	print(adjacency_matrix)
 	
 	distances = bfs_with_distances(graph)
@@ -95,46 +142,59 @@ def main():
 	print()
 	for node, distances_from_node in firstStep.items():
 		print(f"From node FS {node}: {distances_from_node}")
+	while 1:
 		
-		
-		
-	combinations = list(itertools.permutations([0, 0, 0, 1, 1, 1]))
-	minmaxtension=10000
-	# Loop through each combination
-	for particals in combinations:
 		fcur=calcf(adjacency_matrix,distances,firstStep,particals)
-	#	for node, distances_from_node in fcur.items():
-			#print(f"From node Force {node}: {distances_from_node}")
+		for node, distances_from_node in fcur.items():
+			print(f"From node Force {node}: {distances_from_node}")
 		print()
 		inforce=[]
 		for i in range(nodenum):
 			inforce.append(0)
 			for j in range(nodenum):
 				inforce[i]+=fcur[i][j];
-				#print(inforce)
+		print(inforce)
 		edgelist=graph.edges()
 		maxtension=-10000
 		maxtindex=0
-		total_tension=0
 		for edge in edgelist:
 			start_node, end_node =edge
 			fstart=inforce[start_node]-2*fcur[start_node][end_node]
 			fend=inforce[end_node]-2*fcur[end_node][start_node]
 			t=fstart+fend
-			#print(f"Edge: {start_node} -> {end_node} tension: {t}")
-			total_tension+=t
+			print(f"Edge: {start_node} -> {end_node} tension: {t}")
 			if(t>maxtension):
 				maxtension=t
-		print(particals)
-		print("total tension: ",t)
-		print("max tension: ",maxtension)
-		minmaxtension=min(minmaxtension,maxtension)
+				maxtindex=(start_node, end_node)
+		if maxtension>2:
+			particals[maxtindex[0]],particals[maxtindex[1]]=particals[maxtindex[1]],particals[maxtindex[0]]
+		else:
+			break
 		print('======================================')
-	print("min of max tension",minmaxtension)
-		
+		print(particals)
+	print('======================================')
+	visualize_adjacency_matrix(adjacency_matrix)
 	'''
 	fcur=calcf(adjacency_matrix,distances,firstStep,particals)
-	for node, distances_		if(t>maxtension):
+	for node, distances_from_node in fcur.items():
+		print(f"From node Force {node}: {distances_from_node}")
+	print()
+	inforce=[]
+	for i in range(nodenum):
+		inforce.append(0)
+		for j in range(nodenum):
+			inforce[i]+=fcur[i][j];
+	print(inforce)
+	edgelist=graph.edges()
+	maxtension=-10000
+	maxtindex=0
+	for edge in edgelist:
+		start_node, end_node =edge
+		fstart=inforce[start_node]-2*fcur[start_node][end_node]
+		fend=inforce[end_node]-2*fcur[end_node][start_node]
+		t=fstart+fend
+		print(f"Edge: {start_node} -> {end_node} tension: {t}")
+		if(t>maxtension):
 			maxtension=t
 			maxtindex=(start_node, end_node)
 	if maxtension>=2:
@@ -143,7 +203,6 @@ def main():
 		
 		
 		
-#门栏变了，好多
 		
 		
 if __name__ == "__main__":
