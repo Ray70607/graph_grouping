@@ -7,8 +7,8 @@ import networkx as nx
 import numpy
 from collections import deque
 import matplotlib.pyplot as plt
-nodenum=140
-edgenum=240
+nodenum=10
+edgenum=12
 
 import numpy as np
 from collections import deque
@@ -157,7 +157,37 @@ def calcf(adjacency_matrix,distances,firstStep,particals):
 	return f
 
 
+def find_closest_to_zero_and_recurse(arr):
+	# Check if the array is empty
+	if not arr:
+		#print("Array is empty. Stopping function.")
+		return
 	
+	# Find the value closest to zero and its index
+	closest_value = float('inf')
+	closest_index = None
+	for i in range(len(arr)):
+		for j in range(len(arr[0])):
+			if abs(arr[i][j]) < abs(closest_value):
+				closest_value = arr[i][j]
+				closest_index = (i, j)
+				
+	if closest_index is None:
+		#print("No value found in the array.")
+		return
+	
+	#print("Closest value to zero:", closest_value)
+	print("Index of closest value:", closest_index)
+	
+	# Delete the row and column containing the closest value
+	row_idx, col_idx = closest_index
+	del arr[row_idx]
+	for row in arr:
+		del row[col_idx]
+		
+	
+	# Recurse with the updated array
+	find_closest_to_zero_and_recurse(arr)
 	
 	
 	
@@ -186,21 +216,23 @@ def main():
 	print(adjacency_matrix)
 	
 	distances = bfs_with_distances(graph)
+	'''
 	print("\nDistances from each node to all other nodes:")
 	for node, distances_from_node in distances.items():
 		print(f"From node {node}: {distances_from_node}")
 	print()
 	for node, distances_from_node in firstStep.items():
 		print(f"From node FS {node}: {distances_from_node}")
+		'''
 	lasttension=[]
 	for i in range(nodenum):
 		lasttension.append([])
 		for j in range(nodenum):
-			lasttension[i].append(0)
+			lasttension[i].append(100000)
 	while 1:
 		fcur=calcf(adjacency_matrix,distances,firstStep,particals)
-		for node, distances_from_node in fcur.items():
-			print(f"From node Force {node}: {distances_from_node}")
+		#for node, distances_from_node in fcur.items():
+			#print(f"From node Force {node}: {distances_from_node}")
 		print()
 		inforce=[]
 		for i in range(nodenum):
@@ -230,6 +262,8 @@ def main():
 		print(particals)
 	print('======================================')
 	print(particals)
+	find_closest_to_zero_and_recurse(lasttension)
+	#有一个大问题：编号是错的！
 	#print(lasttension)
 	#visualize_graph_with_labels_and_colors(lasttension,particals)
 	
