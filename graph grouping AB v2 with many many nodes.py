@@ -7,8 +7,8 @@ import networkx as nx
 import numpy
 from collections import deque
 import matplotlib.pyplot as plt
-nodenum=10
-edgenum=12
+nodenum=140
+edgenum=215
 
 import numpy as np
 from collections import deque
@@ -164,7 +164,7 @@ def find_closest_to_zero_and_recurse(arr):
 		return
 	
 	# Find the value closest to zero and its index
-	closest_value = float('inf')
+	closest_value = 100000
 	closest_index = None
 	for i in range(len(arr)):
 		for j in range(len(arr[0])):
@@ -172,27 +172,29 @@ def find_closest_to_zero_and_recurse(arr):
 				closest_value = arr[i][j]
 				closest_index = (i, j)
 				
-	if closest_index is None:
-		#print("No value found in the array.")
+	if closest_value == 100000:
+		print("nothing left")
 		return
 	
 	#print("Closest value to zero:", closest_value)
 	print("Index of closest value:", closest_index)
+	print(particals[closest_index[0]],particals[closest_index[1]])
 	
 	# Delete the row and column containing the closest value
 	row_idx, col_idx = closest_index
-	del arr[row_idx]
-	for row in arr:
-		del row[col_idx]
+	for i in range(len(arr)):
+		for j in range(len(arr[0])):
+			if(i==row_idx or j==row_idx or i==col_idx or j==col_idx):
+				arr[i][j]=100000
 		
 	
 	# Recurse with the updated array
 	find_closest_to_zero_and_recurse(arr)
 	
 	
-	
+particals=[]
+
 def main():
-	particals=[]
 	for i in range(nodenum):
 		a=0
 		if i >= nodenum/2:
@@ -213,7 +215,7 @@ def main():
 	adjacency_matrix=numpy.matrix(adjacency_matrix)
 	graph=nx.from_numpy_array(adjacency_matrix)
 	
-	print(adjacency_matrix)
+	print(adjacency_matrix.tolist())
 	
 	distances = bfs_with_distances(graph)
 	'''
@@ -263,7 +265,6 @@ def main():
 	print('======================================')
 	print(particals)
 	find_closest_to_zero_and_recurse(lasttension)
-	#有一个大问题：编号是错的！
 	#print(lasttension)
 	#visualize_graph_with_labels_and_colors(lasttension,particals)
 	
